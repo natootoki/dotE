@@ -1,5 +1,9 @@
 console.log("Hello, javaScript!")
 
+// Canvas上でクリックされた座標を格納する変数
+let clickX = 0;
+let clickY = 0;
+
 document.addEventListener("DOMContentLoaded", function () {
     var canvas = document.getElementById("myCanvas");
     var context = canvas.getContext("2d");
@@ -25,32 +29,42 @@ document.addEventListener("DOMContentLoaded", function () {
         // link.click(); // ダウンロードリンクをクリック
 
         // Canvas要素にクリックイベントリスナーを追加
-        canvas.addEventListener('click', changeColor);
+        // canvas.addEventListener('click', changeColor);
+        // Canvasにクリックイベントリスナーを追加
+        canvas.addEventListener('click', function(event) {
+            // クリックされたイベントから座標を取得
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            // 座標を変数に格納
+            clickX = Math.floor(x);
+            clickY = Math.floor(y);
+
+            // 座標を表示（例: コンソールに表示）
+            console.log(`クリックされた座標: x=${Math.floor(x)}, y=${Math.floor(y)}`);
+            changeColor()
+        });
 
         function changeColor() {
+            // ランダムな色を生成
+            currentColor = getRandomColor();
+            
+            // 色を変更して再描画
+            context.fillStyle = currentColor;
+            context.fillRect(clickX-clickX%8, clickY-clickY%8, 8, 8);
 
-            for(var i=0;i<32;i++){
-                for(var j=0;j<32;j++){
-                    // ランダムな色を生成
-                    currentColor = getRandomColor();
-                    
-                    // 色を変更して再描画
-                    context.fillStyle = currentColor;
-                    context.fillRect(i*8, j*8, (i+1)*8, (j+1)*8);
+            // 新しいCanvasを作成し、大きさを元のCanvasの1/8に設定
+            const newCanvas = document.createElement('canvas');
+            const newCtx = newCanvas.getContext('2d');
+            newCanvas.width = canvas.width / 8;
+            newCanvas.height = canvas.height / 8;
 
-                    // 新しいCanvasを作成し、大きさを元のCanvasの1/8に設定
-                    const newCanvas = document.createElement('canvas');
-                    const newCtx = newCanvas.getContext('2d');
-                    newCanvas.width = canvas.width / 8;
-                    newCanvas.height = canvas.height / 8;
+            // 新しいCanvasに元のCanvasの内容を縮小描画
+            newCtx.drawImage(canvas, 0, 0, newCanvas.width, newCanvas.height);
 
-                    // 新しいCanvasに元のCanvasの内容を縮小描画
-                    newCtx.drawImage(canvas, 0, 0, newCanvas.width, newCanvas.height);
-
-                    dataURL = newCanvas.toDataURL(); // Canvasの内容を画像データURLに変換
-                    link.href = dataURL;
-                }
-            }
+            dataURL = newCanvas.toDataURL(); // Canvasの内容を画像データURLに変換
+            link.href = dataURL;
         }
 
         function getRandomColor() {
