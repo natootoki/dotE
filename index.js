@@ -28,10 +28,34 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(link); // 画像を表示
         // link.click(); // ダウンロードリンクをクリック
 
-        // Canvas要素にクリックイベントリスナーを追加
-        // canvas.addEventListener('click', changeColor);
-        // Canvasにクリックイベントリスナーを追加
-        canvas.addEventListener('click', function(event) {
+        // マウスボタンが押されたときのフラグ
+        let isMouseDown = false;
+
+        // マウスボタンが押されたときのイベントリスナーを追加
+        document.addEventListener("mousedown", function(event) {
+        if (event.button === 0) {
+            // 左ボタンが押された場合
+            isMouseDown = true;
+        }
+        });
+
+        // マウスボタンが離されたときのイベントリスナーを追加
+        document.addEventListener("mouseup", function(event) {
+        if (event.button === 0) {
+            // 左ボタンが離された場合
+            isMouseDown = false;
+        }
+        });
+
+        // マウスが移動したときのイベントリスナー
+        document.addEventListener("mousemove", function(event) {
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        
+            // マウスボタンが押されているかどうかを確認
+            if (isMouseDown) {
+            // マウスボタンが押されている場合の処理
+            console.log("マウスボタンが押されています。");
             // クリックされたイベントから座標を取得
             const rect = canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
@@ -44,7 +68,30 @@ document.addEventListener("DOMContentLoaded", function () {
             // 座標を表示（例: コンソールに表示）
             console.log(`クリックされた座標: x=${Math.floor(x)}, y=${Math.floor(y)}`);
             changeColor()
+            } else {
+            // マウスボタンが押されていない場合の処理
+            console.log("マウスボタンは押されていません。");
+            }
+        
+            // マウスの座標を表示
+            console.log("マウス座標 X: " + mouseX + ", Y: " + mouseY);
         });
+
+        // // Canvasにクリックイベントリスナーを追加
+        // canvas.addEventListener('click', function(event) {
+        //     // クリックされたイベントから座標を取得
+        //     const rect = canvas.getBoundingClientRect();
+        //     const x = event.clientX - rect.left;
+        //     const y = event.clientY - rect.top;
+
+        //     // 座標を変数に格納
+        //     clickX = Math.floor(x);
+        //     clickY = Math.floor(y);
+
+        //     // 座標を表示（例: コンソールに表示）
+        //     console.log(`クリックされた座標: x=${Math.floor(x)}, y=${Math.floor(y)}`);
+        //     changeColor()
+        // });
 
         function changeColor() {
             // ランダムな色を生成
