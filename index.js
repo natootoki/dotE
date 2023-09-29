@@ -38,8 +38,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     context.fillStyle = currentColor;
                     context.fillRect(i*8, j*8, (i+1)*8, (j+1)*8);
 
-                    dataURL = canvas.toDataURL(); // Canvasの内容を画像データURLに変換
-                    // image.src = dataURL;
+                    // 新しいCanvasを作成し、大きさを元のCanvasの1/8に設定
+                    const newCanvas = document.createElement('canvas');
+                    const newCtx = newCanvas.getContext('2d');
+                    newCanvas.width = canvas.width / 8;
+                    newCanvas.height = canvas.height / 8;
+
+                    // 新しいCanvasに元のCanvasの内容を縮小描画
+                    newCtx.drawImage(canvas, 0, 0, newCanvas.width, newCanvas.height);
+
+                    dataURL = newCanvas.toDataURL(); // Canvasの内容を画像データURLに変換
                     link.href = dataURL;
                 }
             }
