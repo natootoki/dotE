@@ -28,16 +28,21 @@ document.addEventListener("DOMContentLoaded", function () {
         canvas.addEventListener('click', changeColor);
 
         function changeColor() {
-            // ランダムな色を生成
-            currentColor = getRandomColor();
-            
-            // 色を変更して再描画
-            context.fillStyle = currentColor;
-            context.fillRect(0, 0, canvas.width, canvas.height);
 
-            dataURL = canvas.toDataURL(); // Canvasの内容を画像データURLに変換
-            // image.src = dataURL;
-            link.href = dataURL;
+            for(var i=0;i<32;i++){
+                for(var j=0;j<32;j++){
+                    // ランダムな色を生成
+                    currentColor = getRandomColor();
+                    
+                    // 色を変更して再描画
+                    context.fillStyle = currentColor;
+                    context.fillRect(i*8, j*8, (i+1)*8, (j+1)*8);
+
+                    dataURL = canvas.toDataURL(); // Canvasの内容を画像データURLに変換
+                    // image.src = dataURL;
+                    link.href = dataURL;
+                }
+            }
         }
 
         function getRandomColor() {
