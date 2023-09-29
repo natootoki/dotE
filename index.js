@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // マウスボタンが押されているかどうかを確認
             if (isMouseDown) {
             // マウスボタンが押されている場合の処理
-            console.log("マウスボタンが押されています。");
+            // console.log("マウスボタンが押されています。");
             // クリックされたイベントから座標を取得
             const rect = canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
@@ -66,36 +66,26 @@ document.addEventListener("DOMContentLoaded", function () {
             clickY = Math.floor(y);
 
             // 座標を表示（例: コンソールに表示）
-            console.log(`クリックされた座標: x=${Math.floor(x)}, y=${Math.floor(y)}`);
+            // console.log(`クリックされた座標: x=${Math.floor(x)}, y=${Math.floor(y)}`);
             changeColor()
-            } else {
-            // マウスボタンが押されていない場合の処理
-            console.log("マウスボタンは押されていません。");
             }
-        
-            // マウスの座標を表示
-            console.log("マウス座標 X: " + mouseX + ", Y: " + mouseY);
         });
 
-        // // Canvasにクリックイベントリスナーを追加
-        // canvas.addEventListener('click', function(event) {
-        //     // クリックされたイベントから座標を取得
-        //     const rect = canvas.getBoundingClientRect();
-        //     const x = event.clientX - rect.left;
-        //     const y = event.clientY - rect.top;
+        canvas.addEventListener('mousedown', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
 
-        //     // 座標を変数に格納
-        //     clickX = Math.floor(x);
-        //     clickY = Math.floor(y);
+            clickX = Math.floor(x);
+            clickY = Math.floor(y);
 
-        //     // 座標を表示（例: コンソールに表示）
-        //     console.log(`クリックされた座標: x=${Math.floor(x)}, y=${Math.floor(y)}`);
-        //     changeColor()
-        // });
+            currentColor = getRandomColor();
+            changeColor()
+          });
 
         function changeColor() {
-            // ランダムな色を生成
-            currentColor = getRandomColor();
+            // // ランダムな色を生成
+            // currentColor = getRandomColor();
             
             // 色を変更して再描画
             context.fillStyle = currentColor;
@@ -122,5 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             return color;
         }
+
+        let currentColor = getRandomColor();
     }
 });
