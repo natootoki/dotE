@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         function changeColor() {
             if(Math.floor(clickX/magnification_rate)<32 && Math.floor(clickY/magnification_rate)<32){
-                if(Math.floor(clickX/magnification_rate)>0 && Math.floor(clickY/magnification_rate)>0){
+                if(Math.floor(clickX/magnification_rate)>=0 && Math.floor(clickY/magnification_rate)>=0){
                     // 色を変更して再描画
                     context.fillStyle = currentColor;
                     context.fillRect(clickX-clickX%magnification_rate, clickY-clickY%magnification_rate, magnification_rate, magnification_rate);
