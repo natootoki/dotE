@@ -4,9 +4,15 @@ console.log("Hello, javaScript!")
 let clickX = 0;
 let clickY = 0;
 
+let magnification_rate = 16
+
+let colors = ["000000", "FFFFFF", "FF0000", "00FF00", "0000FF", "FFFF00", "FF00FF", "00FFFF"]
+
 document.addEventListener("DOMContentLoaded", function () {
     var canvas = document.getElementById("myCanvas");
     var context = canvas.getContext("2d");
+    var palette = document.getElementById("palette");
+    var palette_context = palette.getContext("2d");
     if (canvas) {
 
         // 背景色を設定
@@ -36,6 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.button === 0) {
             // 左ボタンが押された場合
             isMouseDown = true;
+            // currentColor = getRandomColor();
         }
         });
 
@@ -79,9 +86,19 @@ document.addEventListener("DOMContentLoaded", function () {
             clickX = Math.floor(x);
             clickY = Math.floor(y);
 
-            currentColor = getRandomColor();
             changeColor()
-          });
+        });
+
+        palette.addEventListener('mousedown', function(event) {
+            const rect = palette.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            clickX = Math.floor(x);
+            clickY = Math.floor(y);
+            const color = Math.floor(clickX/16) + Math.floor(clickY/16)*16
+            currentColor = "#"+colors[color]
+
+        });
 
         function changeColor() {
             // // ランダムな色を生成
@@ -89,19 +106,33 @@ document.addEventListener("DOMContentLoaded", function () {
             
             // 色を変更して再描画
             context.fillStyle = currentColor;
-            context.fillRect(clickX-clickX%8, clickY-clickY%8, 8, 8);
+            context.fillRect(clickX-clickX%magnification_rate, clickY-clickY%magnification_rate, magnification_rate, magnification_rate);
 
             // 新しいCanvasを作成し、大きさを元のCanvasの1/8に設定
             const newCanvas = document.createElement('canvas');
             const newCtx = newCanvas.getContext('2d');
-            newCanvas.width = canvas.width / 8;
-            newCanvas.height = canvas.height / 8;
+            newCanvas.width = canvas.width / magnification_rate;
+            newCanvas.height = canvas.height / magnification_rate;
 
             // 新しいCanvasに元のCanvasの内容を縮小描画
             newCtx.drawImage(canvas, 0, 0, newCanvas.width, newCanvas.height);
 
             dataURL = newCanvas.toDataURL(); // Canvasの内容を画像データURLに変換
             link.href = dataURL;
+        }
+
+        function paletteColor(x, y, color) {
+            // // ランダムな色を生成
+            // currentColor = getRandomColor();
+            
+            // 色を変更して再描画
+            palette_context.fillStyle = color;
+            palette_context.fillRect(x, y, 16, 16);
+
+        }
+        
+        for (let i = 0; i < colors.length; i++) {
+            paletteColor(i*16, 0, "#"+colors[i]);
         }
 
         function getRandomColor() {
