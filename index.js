@@ -6,7 +6,16 @@ let clickY = 0;
 
 let magnification_rate = 16
 
-let colors = ["000000", "FFFFFF", "FF0000", "00FF00", "0000FF", "FFFF00", "FF00FF", "00FFFF"]
+let color_num = ["00", "33", "66", "99", "CC", "FF"]
+
+let colors = []
+
+let palette_w = 36
+let parette_h = 6
+
+for (let i = 0; i < color_num.length**3; i++) {
+    colors.push(color_num[Math.floor(i/6/6%6)]+color_num[Math.floor(i/6%6)]+color_num[i%6])
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     var canvas = document.getElementById("myCanvas");
@@ -18,6 +27,24 @@ document.addEventListener("DOMContentLoaded", function () {
         // 背景色を設定
         context.fillStyle = "lightgray"; // 背景色を設定
         context.fillRect(0, 0, canvas.width, canvas.height); // Canvas全体に描画
+
+        for(var i=1;i<32;i++){
+            context.beginPath();
+            context.moveTo(i*16, 0); // x座標: 50, y座標: 50
+            context.lineTo(i*16, 512); // x座標: 200, y座標: 100
+            context.strokeStyle = 'black'; // 線の色
+            context.lineWidth = 1; // 線の太さ
+            context.stroke();
+            context.closePath();
+
+            context.beginPath();
+            context.moveTo(0, i*16); // x座標: 50, y座標: 50
+            context.lineTo(512, i*16); // x座標: 200, y座標: 100
+            context.strokeStyle = 'black'; // 線の色
+            context.lineWidth = 1; // 線の太さ
+            context.stroke();
+            context.closePath();
+        }
 
         var dataURL = canvas.toDataURL(); // Canvasの内容を画像データURLに変換
 
@@ -95,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const y = event.clientY - rect.top;
             clickX = Math.floor(x);
             clickY = Math.floor(y);
-            const color = Math.floor(clickX/16) + Math.floor(clickY/16)*16
+            const color = Math.floor(clickX/magnification_rate) + Math.floor(clickY/magnification_rate)*palette_w
             currentColor = "#"+colors[color]
 
         });
@@ -127,23 +154,23 @@ document.addEventListener("DOMContentLoaded", function () {
             
             // 色を変更して再描画
             palette_context.fillStyle = color;
-            palette_context.fillRect(x, y, 16, 16);
+            palette_context.fillRect(x, y, magnification_rate, magnification_rate);
 
         }
         
-        for (let i = 0; i < colors.length; i++) {
-            paletteColor(i*16, 0, "#"+colors[i]);
+        for (let i = 0; i < color_num.length**3; i++) {
+            paletteColor(i%palette_w*magnification_rate, Math.floor(i/palette_w)*magnification_rate, "#"+colors[i]);
         }
 
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
             let color = '#';
             for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
+                color += letters[Math.floor(Math.random() * magnification_rate)];
             }
             return color;
         }
 
-        let currentColor = getRandomColor();
+        let currentColor = "#000000";
     }
 });
