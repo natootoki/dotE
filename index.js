@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     context.lineTo(i*16, 512); // x座標: 200, y座標: 100
                     context.strokeStyle = 'black'; // 線の色
                     context.lineWidth = 2; // 線の太さ
-                    if (i!=15){
+                    if (i!=16){
                         context.lineWidth = 1; // 線の太さ
                     }
                     context.stroke();
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     context.lineTo(512, i*16); // x座標: 200, y座標: 100
                     context.strokeStyle = 'black'; // 線の色
                     context.lineWidth = 2; // 線の太さ
-                    if (i!=15){
+                    if (i!=16){
                         context.lineWidth = 1; // 線の太さ
                     }
                     context.stroke();
