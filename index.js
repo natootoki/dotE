@@ -20,6 +20,7 @@ let grid = true;
 let currentColor = "#000000";
 
 let picture = []
+let data = []
 
 for (let i = 0; i < 32; i++) {
     const hoge = []
@@ -27,6 +28,31 @@ for (let i = 0; i < 32; i++) {
         hoge.push(-1)
     }
     picture.push(hoge)
+    data.push(hoge)
+}
+
+function picture_to_data(col) {
+    // 入力は#FFFFFFなどを想定
+    if(col==-1){
+        return -1
+    }else{
+        var dat = 0
+        var col_array = []
+        for (let i = 1; i < col.length; i += 2) {
+            col_array.push(col.slice(i, i + 2));
+        }
+        for(var i=0;i<col_array.length;i++){
+            dat+=(color_num.indexOf(col_array[i]))*6**(2-i)
+        }
+        return dat
+    }
+}
+console.log(picture_to_data("#000000"))
+
+// 1. 二次元配列を文字列に変換する関数
+function arrayToCSV(arr) {
+    const rows = arr.map(row => row.join(',')); // 各行をカンマで結合
+    return rows.join('\n'); // 改行で各行を結合
 }
 
 console.log(picture)
@@ -89,6 +115,20 @@ document.addEventListener("DOMContentLoaded", function () {
         link.textContent = "画像をダウンロード"
         document.body.appendChild(link); // 画像を表示
         // link.click(); // ダウンロードリンクをクリック
+
+        // テキストファイルに保存する文字列
+        const textData = arrayToCSV(picture);
+
+        // データをBlobに変換
+        const blob = new Blob([textData], { type: "text/plain" });
+
+        // ダウンロード用のリンクを作成
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "sample.txt"; // ファイル名を指定
+        a.textContent = "データをダウンロード"
+        document.body.appendChild(a);
 
         function drawing(){
             var canvas = document.getElementById("myCanvas");
@@ -251,6 +291,16 @@ document.addEventListener("DOMContentLoaded", function () {
         
             dataURL = newCanvas.toDataURL(); // Canvasの内容を画像データURLに変換
             link.href = dataURL;
+
+            // テキストファイルに保存する文字列
+            const textData = arrayToCSV(picture);
+
+            // データをBlobに変換
+            const blob = new Blob([textData], { type: "text/plain" });
+
+            // ダウンロード用のリンクを作成
+            const url = window.URL.createObjectURL(blob);
+            a.href = url;
         }
 
         function paletteColor(x, y, color) {
@@ -263,5 +313,26 @@ document.addEventListener("DOMContentLoaded", function () {
         for (let i = 0; i < color_num.length**3; i++) {
             paletteColor(i%palette_w*magnification_rate, Math.floor(i/palette_w)*magnification_rate, "#"+colors[i]);
         }
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+        
+            if (file) {
+                const reader = new FileReader();
+        
+                reader.onload = function(e) {
+                    const contents = e.target.result;
+                    const lines = contents.split('\n'); // 改行で分割
+        
+                    picture = lines.map(line => line.split(',')); // カンマで分割
+
+                    changeColor()
+                    drawing()
+                    posting()
+                };
+        
+                reader.readAsText(file);
+            }
+        });
     }
 });
