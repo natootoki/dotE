@@ -11,7 +11,7 @@ let color_num = ["00", "33", "66", "99", "CC", "FF"]
 let colors = []
 
 let palette_w = 36
-let parette_h = 6
+let palette_h = 6
 
 let backgroundColor = "#FFFFFF";
 
@@ -261,6 +261,25 @@ document.addEventListener("DOMContentLoaded", function () {
             const color = Math.floor(clickX/magnification_rate) + Math.floor(clickY/magnification_rate)*palette_w
             currentColor = "#"+colors[color]
 
+            // Canvasをクリア
+            palette_context.clearRect(0, 0, palette_w*magnification_rate, palette_h*magnification_rate);
+
+            // ここに待機後に実行したいコードを記述
+            for (var i = 0; i < color_num.length**3; i++) {
+                paletteColor(i%palette_w*magnification_rate, Math.floor(i/palette_w)*magnification_rate, "#"+colors[i]);
+            }
+
+            // ここに待機後に実行したいコードを記述
+            console.log("aiu")
+
+            // 色を変更して再描画
+            palette = document.getElementById("palette");
+            palette_context = palette.getContext("2d");
+            palette_context.strokeStyle = 'black'; // 枠線の色を設定
+            palette_context.lineWidth = 1; // 枠線の太さを設定
+            palette_context.rect(clickX-clickX%magnification_rate, clickY-clickY%magnification_rate, magnification_rate, magnification_rate);
+            palette_context.stroke(); // 枠線を描画
+
         });
 
         function changeColor() {
@@ -304,13 +323,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         function paletteColor(x, y, color) {
+            palette = document.getElementById("palette");
+            palette_context = palette.getContext("2d");
                     
             // 色を変更して再描画
             palette_context.fillStyle = color;
             palette_context.fillRect(x, y, magnification_rate, magnification_rate);
+            palette_context.stroke()
         }
         
         for (let i = 0; i < color_num.length**3; i++) {
+            // palette_context.clearRect(0, 0, palette_w*magnification_rate, palette_h*magnification_rate);
             paletteColor(i%palette_w*magnification_rate, Math.floor(i/palette_w)*magnification_rate, "#"+colors[i]);
         }
 

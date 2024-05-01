@@ -1,12 +1,688 @@
-<meta charset="UTF-8">
-Hello, html!
-<button id="gridButton">グリッド</button>
-<br>
-<script src="index.js"></script>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvasサイズをinputから指定する例</title>
+    <style>
+        /* キャンバスのスタイルを追加する場合はここに記述 */
+        canvas {
+            border: 1px solid black; /* キャンバスに境界線を付ける */
+        }
+    </style>
+</head>
+<body>
+    <!-- <h1>dotE</h1> -->
 
-<canvas id="myCanvas" width="512" height="512" style="border:1px solid #000;"></canvas>
-<br>
-<canvas id="palette" width="576" height="96" style="border:1px solid #000;"></canvas>
-<br>
-<input type="file" id="fileInput">
-<pre id="output"></pre>
+    <!-- 幅と高さを指定するinput -->
+    <label for="pictureWidthInput">PICTURE_W:</label>
+    <input type="number" id="pictureWidthInput" value="64">
+    <br>
+    <label for="pictureHeightInput">PICTURE_H:</label>
+    <input type="number" id="pictureHeightInput" value="128">
+    <br>
+    <button onclick="updateCanvasSize()">Pictureのサイズを更新</button>
+    <br>
+    
+    <!-- 幅と高さを指定するinput -->
+    <label for="widthInput">CANVAS_W:</label>
+    <input type="number" id="widthInput" value="32">
+    <br>
+    <label for="heightInput">CANVAS_H:</label>
+    <input type="number" id="heightInput" value="32">
+    <br>
+    <button onclick="updateCanvasSize()">Canvasのサイズを更新</button>
+    <br>
+
+    <!-- r、g、b要素を指定するinput -->
+    <label for="redInput">R (0-5):</label>
+    <input type="number" id="redInput" min="0" max="5" value="0">
+    <br>
+    <label for="greenInput">G (0-5):</label>
+    <input type="number" id="greenInput" min="0" max="5" value="0">
+    <br>
+    <label for="blueInput">B (0-5):</label>
+    <input type="number" id="blueInput" min="0" max="5" value="0">
+    <br>
+    <button onclick="updateBackgroundColor()">Canvasの背景色を更新</button>
+    <br>
+
+    <canvas id="display"></canvas>
+
+    <br>
+    <!-- JavaScriptでサイズを指定するCanvas -->
+    <canvas id="myCanvas"></canvas>
+
+    <!-- PNGファイルダウンロードボタン -->
+    <button id="downloadBtn">PNGファイルダウンロード</button>
+
+    <br>
+    <!-- shiftColorsX実行ボタン -->
+    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsY(-1)">↑</button>
+    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsY(1)">↓</button>
+    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsX(-1)">←</button>
+    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsX(1)">→</button>
+
+
+
+    <script>
+
+        // キャンバス要素を取得
+        var canvas = document.getElementById('myCanvas');
+        // キャンバスのコンテキストを取得
+        var ctx = canvas.getContext('2d');
+
+        canvas.width = 32*16;
+        canvas.height = 32*16;
+
+        var pixelSize = 1; // ドットのサイズ
+
+        var display = document.getElementById('display');
+        var d_ctx = display.getContext('2d');
+
+        display.height = document.getElementById('pictureHeightInput').value * pixelSize;
+        display.width = document.getElementById('pictureWidthInput').value * pixelSize;
+
+        // input要素を取得
+        var redInput = document.getElementById('redInput');
+        var greenInput = document.getElementById('greenInput');
+        var blueInput = document.getElementById('blueInput');
+
+        // canvasの1ドット幅
+        var cell_size = 16;
+
+        // オブジェクトを定義
+        var pen = {
+            _x: 0,
+            _y: 0,
+            _r: 0,
+            _g: 0,
+            _b: 0,
+            _state: "display",
+            get x() {
+                return this._x; // getter1
+            },
+            set x(newValue) {
+                if (newValue !== this._x) {
+                    this._x = newValue; // setter1
+                    this.doSomething(); // 関数の実行
+                }
+            },
+            get y() {
+                return this._y; // getter2
+            },
+            set y(newValue) {
+                if (newValue !== this._y) {
+                    this._y = newValue; // setter2
+                    this.doSomething(); // 関数の実行
+                }
+            },
+            get r() {
+                return this._r;
+            },
+            set r(newValue) {
+                if (newValue !== this._r) {
+                    this._r = newValue;
+                }
+            },
+            get g() {
+                return this._g;
+            },
+            set g(newValue) {
+                if (newValue !== this._g) {
+                    this._g = newValue;
+                }
+            },
+            get b() {
+                return this._b;
+            },
+            set b(newValue) {
+                if (newValue !== this._b) {
+                    this._b = newValue;
+                }
+            },
+            get state() {
+                return this._state;
+            },
+            set state(newValue) {
+                if (newValue !== this._state) {
+                    this._state = newValue;
+                }
+            },
+            doSomething: function() {
+                // console.log('値が変化しました:', this._x, this._y);
+                if(isMouseDown && this.state=="canvas"){
+                    drawRectangle(this.x, this.y, this.r, this.g, this.b);
+                    pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b]);
+                    picture.setColor(pixelArt.x + pen.x, pixelArt.y + pen.y, [pen.r, pen.g, pen.b]);
+                    // console.log(pixelArt.colors)
+                    // Canvasにドット絵を描画
+                    drawSingleDot()
+                    drawVerticalLines(cell_size, 'black', 1);
+                    drawHorizontalLines(cell_size, 'black', 1);
+                }
+            }
+        };
+
+        // ドット絵の色情報を管理するオブジェクト
+        var pixelArt = {
+            x: 0,
+            y: 0,
+            width: 32,
+            height: 32,
+            colors: [], // 色情報を格納する配列
+
+            // キャンバスの初期化
+            initialize: function() {
+                for (let y = 0; y < this.height; y++) {
+                    this.colors[y] = [];
+                    for (let x = 0; x < this.width; x++) {
+                        this.colors[y][x] = [-1, -1, -1]; // 初期状態では全てのマスを白色に設定（RGB値）
+                    }
+                }
+            },
+
+            // 特定の座標の色を設定する
+            setColor: function(x, y, rgb) {
+                if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+                    this.colors[y][x] = rgb;
+                }
+            },
+
+            // 特定の座標の色を取得する
+            getColor: function(x, y) {
+                if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+                    return this.colors[y][x];
+                }
+                return [-1, -1, -1]; // 座標が範囲外の場合は白色を返す
+            },
+
+            // キャンバスのサイズを変更する
+            setCanvas: function(newX, newY) {
+                this.x = newX;
+                this.y = newY;
+                this.initialize(); // キャンバスを初期化する
+            },
+
+            // キャンバスのサイズを変更する
+            resizeCanvas: function(newWidth, newHeight) {
+                this.width = newWidth;
+                this.height = newHeight;
+                this.initialize(); // キャンバスを初期化する
+            },
+
+            // x方向に色情報を1つずつずらす
+            shiftColorsY: function(sign) {
+                // 各行の最後の色情報を一時的に保持する
+                var lastColors = [];
+                for (let x = 0; x < this.width; x++) {
+                    if(sign==1){
+                        lastColors[x] = this.colors[this.height - 1][x];
+                    }else if(sign==-1){
+                        lastColors[x] = this.colors[0][x];
+                    }
+                }
+                // console.log(this.colors);
+                // console.log(lastColors);
+                // 各行の色情報を1つずつずらす
+                for (let x = 0; x < this.width; x++) {
+                    if(sign==1){
+                        for (let y = this.height - 1; y > 0; y--) {
+                            this.colors[y][x] = this.colors[y - sign][x];
+                        }
+                    }else if(sign==-1){
+                        for (let y = 0; y < this.height - 1; y++) {
+                            this.colors[y][x] = this.colors[y - sign][x];
+                        }
+                    }
+                    // 最初の色情報を最後に移動する
+                    if(sign==1){
+                        this.colors[0][x] = lastColors[x];
+                    }else if(sign==-1){
+                        this.colors[this.height - 1][x] = lastColors[x];
+                    }
+                }
+                console.log(this.colors);
+                picture.shiftColorsY(sign);
+                drawCanvas();
+                drawPicture();
+            },
+
+                        // x方向に色情報を1つずつずらす
+                        shiftColorsX: function(sign) {
+                // 各行の最後の色情報を一時的に保持する
+                var lastColors = [];
+                for (let y = 0; y < this.height; y++) {
+                    if(sign==1){
+                        lastColors[y] = this.colors[y][this.width - 1];
+                    }else if(sign==-1){
+                        lastColors[y] = this.colors[y][0];
+                    }
+                }
+                // console.log(this.colors);
+                // console.log(lastColors);
+                // 各行の色情報を1つずつずらす
+                for (let y = 0; y < this.height; y++) {
+                    if(sign==1){
+                        for (let x = this.width - 1; x > 0; x--) {
+                            this.colors[y][x] = this.colors[y][x - sign];
+                        }
+                    }else if(sign==-1){
+                        for (let x = 0; x < this.width - 1; x++) {
+                            this.colors[y][x] = this.colors[y][x - sign];
+                        }
+                    }
+                    // 最初の色情報を最後に移動する
+                    if(sign==1){
+                        this.colors[y][0] = lastColors[y];
+                    }else if(sign==-1){
+                        this.colors[y][this.width - 1] = lastColors[y];
+                    }
+                }
+                console.log(this.colors);
+                picture.shiftColorsX(sign);
+                drawCanvas();
+                drawPicture();
+            }
+        };
+
+
+
+        // ドット絵の色情報を管理するオブジェクト
+        var picture = {
+            width: 64,
+            height: 128,
+            colors: [], // 色情報を格納する配列
+
+            // キャンバスの初期化
+            initialize: function() {
+                for (let y = 0; y < this.height; y++) {
+                    this.colors[y] = [];
+                    for (let x = 0; x < this.width; x++) {
+                        this.colors[y][x] = [-1, -1, -1]; // 初期状態では全てのマスを白色に設定（RGB値）
+                    }
+                }
+            },
+
+            // 特定の座標の色を設定する
+            setColor: function(x, y, rgb) {
+                if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+                    this.colors[y][x] = rgb;
+                }
+            },
+
+            // 特定の座標の色を取得する
+            getColor: function(x, y) {
+                if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+                    return this.colors[y][x];
+                }
+                return [-1, -1, -1]; // 座標が範囲外の場合は白色を返す
+            },
+
+            // キャンバスのサイズを変更する
+            resizePicture: function(newWidth, newHeight) {
+                this.width = newWidth;
+                this.height = newHeight;
+                // this.initialize(); // キャンバスを初期化する
+            },
+
+            // x方向に色情報を1つずつずらす
+            shiftColorsX: function(sign) {
+                // 各行の最後の色情報を一時的に保持する
+                const lastColors = [];
+                for (let y = pixelArt.y; y < pixelArt.y + pixelArt.height; y++) {
+                    if(sign==1){
+                        lastColors[y] = this.colors[y][pixelArt.width - 1];
+                    }else if(sign==-1){
+                        lastColors[y] = this.colors[y][0];
+                    }
+                }
+                // 各行の色情報を1つずつずらす
+                for (let y = pixelArt.y; y < pixelArt.y + pixelArt.height; y++) {
+                    if(sign==1){
+                        for (let x = pixelArt.x + pixelArt.width - 1; x > pixelArt.x; x--) {
+                            this.colors[y][x] = this.colors[y][x - sign];
+                        }
+                    }else if(sign==-1){
+                        for (let x = pixelArt.x; x < pixelArt.x + pixelArt.width - 1; x++) {
+                            this.colors[y][x] = this.colors[y][x - sign];
+                        }
+                    }
+
+                    // 最初の色情報を最後に移動する
+                    if(sign==1){
+                        this.colors[y][0] = lastColors[y];
+                    }else if(sign==-1){
+                        this.colors[y][pixelArt.width - 1] = lastColors[y];
+                    }
+                }
+            },
+
+            // x方向に色情報を1つずつずらす
+            shiftColorsY: function(sign) {
+                // 各行の最後の色情報を一時的に保持する
+                const lastColors = [];
+                for (let x = pixelArt.x; x < pixelArt.x + pixelArt.width; x++) {
+                    if(sign==1){
+                        lastColors[x] = this.colors[pixelArt.height - 1][x];
+                    }else if(sign==-1){
+                        lastColors[x] = this.colors[0][x];
+                    }
+                }
+                // 各行の色情報を1つずつずらす
+                for (let x = pixelArt.x; x < pixelArt.x + pixelArt.width; x++) {
+                    if(sign==1){
+                        for (let y = pixelArt.y + pixelArt.height - 1; y > pixelArt.y; y--) {
+                            this.colors[y][x] = this.colors[y - sign][x];
+                        }
+                    }else if(sign==-1){
+                        for (let y = pixelArt.y; y < pixelArt.y + pixelArt.height - 1; y++) {
+                            this.colors[y][x] = this.colors[y - sign][x];
+                        }
+                    }
+
+                    // 最初の色情報を最後に移動する
+                    if(sign==1){
+                        this.colors[0][x] = lastColors[x];
+                    }else if(sign==-1){
+                        this.colors[pixelArt.height - 1][x] = lastColors[x];
+                    }
+                }
+            }
+        };
+
+
+        // PNGファイルダウンロードボタンのクリックイベントを設定
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.addEventListener('click', function() {
+            drawPicture()
+            const imgData = display.toDataURL('image/png'); // Canvasの内容をPNGデータURLに変換
+            const link = document.createElement('a'); // リンク要素を作成
+            link.download = 'canvas_image.png'; // ファイル名を指定
+            link.href = imgData; // PNGデータURLをリンクに設定
+            link.click(); // リンクをクリックしてダウンロードを開始
+        });
+
+
+
+        // Canvasにドット絵を描画する関数
+        function drawPicture() {
+            // Canvasをクリアする
+            d_ctx.clearRect(0, 0, display.width, display.height);
+            // console.log(pixelArt.width);
+            // console.log(pixelArt.height);
+
+            // 各マスの色を描画する
+            for (let y = 0; y < picture.height; y++) {
+                for (let x = 0; x < picture.width; x++) {
+                    var color = picture.getColor(x, y);
+                    // console.log("Hello.");
+                    if(color[0]>-1){
+                        d_ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                        d_ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);    
+                    }
+                }
+            }
+        }
+
+
+
+        // Canvasにドット絵を描画する関数
+        function drawSingleDot() {
+            // Canvasをクリアする
+            // d_ctx.clearRect(0, 0, display.width, display.height);
+
+            var color = pixelArt.getColor(pen.x, pen.y);
+            // console.log("Hello.");
+            d_ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+            d_ctx.fillRect((pixelArt.x + pen.x) * pixelSize, (pixelArt.y + pen.y) * pixelSize, pixelSize, pixelSize);
+        }
+
+
+
+        // Canvasにドット絵を描画する関数
+        function drawCanvas() {
+            // Canvasをクリアする
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // console.log(pixelArt.width);
+            // console.log(pixelArt.height);
+
+            // 各マスの色を描画する
+            for (let y = pixelArt.y; y < pixelArt.y + pixelArt.height; y++) {
+                for (let x = pixelArt.x; x < pixelArt.x + pixelArt.width; x++) {
+                    var color = picture.getColor(x, y);
+                    // console.log("Hello." + x + " " + y);
+                    if(color[0]>-1){
+                        ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                        ctx.fillRect((x - pixelArt.x) * cell_size, (y - pixelArt.y) * cell_size, cell_size, cell_size);
+                    }
+                }
+            }
+
+            drawVerticalLines(cell_size, 'black', 1);
+            drawHorizontalLines(cell_size, 'black', 1);
+        }
+
+        // ドット絵の初期化
+        pixelArt.initialize();
+
+        picture.initialize();
+
+        // マウスがクリックされているかどうかを保持する変数
+        var isMouseDown = false;
+
+        // マウスのボタンが押されたときの処理
+        document.addEventListener('mousedown', function(event) {
+            if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
+                isMouseDown = true;
+            }
+        });
+
+        // マウスのボタンが押されたときの処理
+        canvas.addEventListener('mousedown', function(event) {
+            if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
+                isMouseDown = true;
+                pen.state = "canvas";
+                // console.log('左クリックが押されました');
+                pen.doSomething();
+                pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b])
+            }
+        });
+
+        // マウスのボタンが押されたときの処理
+        display.addEventListener('mousedown', function(event) {
+            if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
+                isMouseDown = true;
+                pen.state = "display";
+                // console.log('左クリックが押されました');
+                drawPicture();
+                drawFrame(pen.x, pen.y ,255, 0, 0);
+                pixelArt.initialize();
+                drawCanvas();
+            }
+        });
+
+        // マウスのボタンが押されたときの処理
+        display.addEventListener('mousedown', function(event) {
+            if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
+                isMouseDown = true;
+                // console.log('ディスプレイがクリックされました。');
+            }
+        });
+
+        // マウスのボタンが離されたときの処理
+        document.addEventListener('mouseup', function(event) {
+            if (event.button === 0) { // 左クリックが離された場合
+                isMouseDown = false;
+            }
+        });
+
+        // Canvasのサイズを更新する関数
+        function updateCanvasSize() {
+            // 幅と高さのinput要素から値を取得
+            var width = parseInt(document.getElementById('widthInput').value*16);
+            var height = parseInt(document.getElementById('heightInput').value*16);
+
+            // Canvasの幅と高さを更新
+            canvas.width = width;
+            canvas.height = height;
+
+            // Canvasに線を描画してみる
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // キャンバスをクリア
+
+            drawVerticalLines(cell_size, 'black', 1);
+            drawHorizontalLines(cell_size, 'black', 1);
+
+            // ドット絵の初期化
+            pixelArt.resizeCanvas(document.getElementById('widthInput').value, document.getElementById('heightInput').value);
+        }
+
+
+
+        // Canvasのサイズを更新する関数
+        function loadPictureToCanvas() {
+            // 幅と高さのinput要素から値を取得
+            var width = parseInt(document.getElementById('widthInput').value*16);
+            var height = parseInt(document.getElementById('heightInput').value*16);
+
+            // Canvasの幅と高さを更新
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // キャンバスをクリア
+
+            drawVerticalLines(cell_size, 'black', 1);
+            drawHorizontalLines(cell_size, 'black', 1);
+
+            // ドット絵の初期化
+            pixelArt.resizeCanvas(document.getElementById('widthInput').value, document.getElementById('heightInput').value);
+        }
+
+
+
+        // 背景色を更新する関数
+        function updateBackgroundColor() {
+            // r、g、bの値を取得
+            pen.r = document.getElementById('redInput').value * 51;
+            pen.g = document.getElementById('greenInput').value * 51;
+            pen.b = document.getElementById('blueInput').value * 51;
+
+            // 背景色を設定
+            canvas.style.backgroundColor = 'rgb(' + pen.r + ',' + pen.g + ',' + pen.b + ')';
+            display.style.backgroundColor = 'rgb(' + pen.r + ',' + pen.g + ',' + pen.b + ')';
+        }
+
+
+
+        // input要素の値が変化したときに実行される関数
+        redInput.addEventListener('input', function(event) {
+            pen.r = document.getElementById('redInput').value * 51;
+        });
+
+
+
+        greenInput.addEventListener('input', function(event) {
+            pen.g = document.getElementById('greenInput').value * 51;
+        });
+
+
+
+        blueInput.addEventListener('input', function(event) {
+            pen.b = document.getElementById('blueInput').value * 51;
+        });
+
+
+
+        // 四角形を描画する関数
+        function drawRectangle(x, y, r, g, b) {
+            // 色を設定
+            ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+            // 四角形を描画
+            ctx.fillRect(x * cell_size, y * cell_size, cell_size, cell_size);
+        }
+
+
+
+        // 枠を描画する関数
+        function drawFrame(x, y, r, g, b) {
+            // 色を設定
+            d_ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')'; // 境界線の色を設定
+
+            // 四角形を描画
+            d_ctx.strokeRect(x * pixelArt.width, y * pixelArt.height, pixelArt.width, pixelArt.height);
+
+            pixelArt.x = x * pixelArt.width;
+            pixelArt.y = y * pixelArt.height
+            // console.log(pixelArt.x);
+            // console.log(pixelArt.y);
+        }
+
+
+
+        // マウスカーソルの座標を取得する関数
+        function getMousePos(event) {
+            var rect = canvas.getBoundingClientRect(); // Canvasの位置とサイズを取得
+            pen.x = Math.floor((event.clientX - rect.left) / cell_size); // Canvas内のX座標
+            pen.y = Math.floor((event.clientY - rect.top) / cell_size); // Canvas内のY座標
+            // console.log("マウスの座標 (X, Y):", pen.x, pen.y);
+        }
+
+
+
+        // マウスカーソルの座標を取得する関数
+        function getMousePosDisplay(event) {
+            var rect = display.getBoundingClientRect(); // Canvasの位置とサイズを取得
+            pen.x = Math.floor((event.clientX - rect.left) / pixelArt.width); // Canvas内のX座標
+            pen.y = Math.floor((event.clientY - rect.top) / pixelArt.height); // Canvas内のY座標
+            // console.log("マウスの座標 (X, Y):", pen.x, pen.y);
+        }
+
+
+
+        // マウスが移動したときに座標を取得
+        canvas.addEventListener('mousemove', getMousePos);
+        display.addEventListener('mousemove', getMousePosDisplay);
+
+
+
+        // 縦線を引く関数
+        function drawVerticalLines(interval, color, lineWidth) {
+            ctx.strokeStyle = color; // 線の色を設定
+            ctx.lineWidth = lineWidth; // 線の太さを設定
+
+            for (var x = interval; x < canvas.width; x += interval) {
+                ctx.beginPath(); // パスの開始
+                ctx.moveTo(x, 0); // 線の開始位置
+                ctx.lineTo(x, canvas.height); // 線の終了位置
+                ctx.stroke(); // 線の描画
+            }
+        }
+
+
+
+        // 等間隔で縦線を引く（例：間隔20ピクセル、赤色、太さ2ピクセル）
+        drawVerticalLines(cell_size, 'black', 1);
+
+
+
+        // 横線を引く関数
+        function drawHorizontalLines(interval, color, lineWidth) {
+            ctx.strokeStyle = color; // 線の色を設定
+            ctx.lineWidth = lineWidth; // 線の太さを設定
+
+            for (var y = interval; y < canvas.height; y += interval) {
+                ctx.beginPath(); // パスの開始
+                ctx.moveTo(0, y); // 線の開始位置
+                ctx.lineTo(canvas.width, y); // 線の終了位置
+                ctx.stroke(); // 線の描画
+            }
+        }
+
+
+
+        // 等間隔で横線を引く（例：間隔20ピクセル、青色、太さ2ピクセル）
+        drawHorizontalLines(cell_size, 'black', 1);
+
+    </script>
+</body>
+</html>
