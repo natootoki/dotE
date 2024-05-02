@@ -50,6 +50,7 @@
     <input type="number" id="blueInput" min="0" max="5" value="0">
     <br>
     <button onclick="updateBackgroundColor()">Canvasの背景色を更新</button>
+    <button onclick="clearCanvas()">Canvasをクリア</button>
     <br>
 
     <canvas id="display"></canvas>
@@ -167,7 +168,7 @@
                         picture.setColor(pixelArt.x + pen.x, pixelArt.y + pen.y, [-1, -1, -1]);
                     }
                     // Canvasにドット絵を描画
-                    drawSingleDot()
+                    drawSingleDot();
                     drawVerticalLines(cell_size, 'black', 1);
                     drawHorizontalLines(cell_size, 'black', 1);
                 }
@@ -305,7 +306,7 @@
             height: 128,
             colors: [], // 色情報を格納する配列
 
-            // キャンバスの初期化
+            // ピクチャーの初期化
             initialize: function() {
                 for (let y = 0; y < this.height; y++) {
                     this.colors[y] = [];
@@ -314,7 +315,14 @@
                     }
                 }
             },
-
+            // ピクチャーの初期化
+            canvasInitialize: function() {
+                for (let y = pixelArt.y; y < pixelArt.y + pixelArt.height; y++) {
+                    for (let x = pixelArt.x; x < pixelArt.x + pixelArt.width; x++) {
+                        this.colors[y][x] = [-1, -1, -1]; // 初期状態では全てのマスを白色に設定（RGB値）
+                    }
+                }
+            },
             // 特定の座標の色を設定する
             setColor: function(x, y, rgb) {
                 if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
@@ -490,6 +498,8 @@
             drawHorizontalLines(cell_size, 'black', 1);
         }
 
+
+
         // ドット絵の初期化
         pixelArt.initialize();
 
@@ -505,6 +515,8 @@
             }
         });
 
+
+
         // マウスのボタンが押されたときの処理
         canvas.addEventListener('mousedown', function(event) {
             if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
@@ -515,6 +527,8 @@
                 pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b])
             }
         });
+
+
 
         // マウスのボタンが押されたときの処理
         display.addEventListener('mousedown', function(event) {
@@ -529,6 +543,8 @@
             }
         });
 
+
+
         // マウスのボタンが押されたときの処理
         display.addEventListener('mousedown', function(event) {
             if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
@@ -537,12 +553,26 @@
             }
         });
 
+
+
         // マウスのボタンが離されたときの処理
         document.addEventListener('mouseup', function(event) {
             if (event.button === 0) { // 左クリックが離された場合
                 isMouseDown = false;
             }
         });
+
+
+
+        function clearCanvas() {
+            pixelArt.initialize();
+            picture.canvasInitialize();
+            drawCanvas();
+            drawPicture();
+            drawFrame(pixelArt.x/pixelArt.width, pixelArt.y/pixelArt.height ,255, 0, 0);
+            drawVerticalLines(cell_size, 'black', 1);
+            drawHorizontalLines(cell_size, 'black', 1);
+        }
 
 
 
