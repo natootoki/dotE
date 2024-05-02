@@ -21,7 +21,7 @@
     <label for="pictureHeightInput">PICTURE_H:</label>
     <input type="number" id="pictureHeightInput" value="128">
     <br>
-    <button onclick="updateCanvasSize()">Pictureのサイズを更新</button>
+    <button onclick="updateDisplaySize()">Pictureのサイズを更新</button>
     <br>
     
     <!-- 幅と高さを指定するinput -->
@@ -335,6 +335,8 @@
                 this.width = newWidth;
                 this.height = newHeight;
                 // this.initialize(); // キャンバスを初期化する
+                this.initialize(); // キャンバスを初期化する
+                drawCanvas();
             },
 
             // x方向に色情報を1つずつずらす
@@ -542,11 +544,13 @@
             }
         });
 
+
+
         // Canvasのサイズを更新する関数
         function updateCanvasSize() {
             // 幅と高さのinput要素から値を取得
-            var width = parseInt(document.getElementById('widthInput').value*16);
-            var height = parseInt(document.getElementById('heightInput').value*16);
+            var width = parseInt(document.getElementById('widthInput').value*cell_size);
+            var height = parseInt(document.getElementById('heightInput').value*cell_size);
 
             // Canvasの幅と高さを更新
             canvas.width = width;
@@ -560,6 +564,28 @@
 
             // ドット絵の初期化
             pixelArt.resizeCanvas(document.getElementById('widthInput').value, document.getElementById('heightInput').value);
+        }
+
+
+
+        // Canvasのサイズを更新する関数
+        function updateDisplaySize() {
+            // 幅と高さのinput要素から値を取得
+            var width = parseInt(document.getElementById('pictureWidthInput').value);
+            var height = parseInt(document.getElementById('pictureHeightInput').value);
+
+            // Canvasの幅と高さを更新
+            display.width = width;
+            display.height = height;
+
+            // Canvasに線を描画してみる
+            ctx.clearRect(0, 0, display.width, display.height); // キャンバスをクリア
+
+            drawVerticalLines(cell_size, 'black', 1);
+            drawHorizontalLines(cell_size, 'black', 1);
+
+            // ドット絵の初期化
+            picture.resizePicture(document.getElementById('pictureWidthInput').value, document.getElementById('pictureHeightInput').value);
         }
 
 
