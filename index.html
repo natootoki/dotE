@@ -34,6 +34,11 @@
     <button onclick="updateCanvasSize()">Canvasのサイズを更新</button>
     <br>
 
+    <!-- 消しゴムチェックボックス -->
+    <label for="eraserCheckbox">消しゴム</label>
+    <input type="checkbox" id="eraserCheckbox" name="eraser" value="eraser">
+    <br>
+
     <!-- r、g、b要素を指定するinput -->
     <label for="redInput">R (0-5):</label>
     <input type="number" id="redInput" min="0" max="5" value="0">
@@ -152,10 +157,15 @@
             doSomething: function() {
                 // console.log('値が変化しました:', this._x, this._y);
                 if(isMouseDown && this.state=="canvas"){
-                    drawRectangle(this.x, this.y, this.r, this.g, this.b);
-                    pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b]);
-                    picture.setColor(pixelArt.x + pen.x, pixelArt.y + pen.y, [pen.r, pen.g, pen.b]);
-                    // console.log(pixelArt.colors)
+                    if(!getCheckboxState()){
+                        drawRectangle(this.x, this.y, this.r, this.g, this.b);
+                        pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b]);
+                        picture.setColor(pixelArt.x + pen.x, pixelArt.y + pen.y, [pen.r, pen.g, pen.b]);
+                    }else{
+                        drawRectangle(this.x, this.y, -1, -1, -1);
+                        pixelArt.setColor(pen.x, pen.y, [-1, -1, -1]);
+                        picture.setColor(pixelArt.x + pen.x, pixelArt.y + pen.y, [-1, -1, -1]);
+                    }
                     // Canvasにドット絵を描画
                     drawSingleDot()
                     drawVerticalLines(cell_size, 'black', 1);
@@ -209,6 +219,7 @@
                 this.width = newWidth;
                 this.height = newHeight;
                 this.initialize(); // キャンバスを初期化する
+                drawCanvas();
             },
 
             // x方向に色情報を1つずつずらす
@@ -248,8 +259,8 @@
                 drawPicture();
             },
 
-                        // x方向に色情報を1つずつずらす
-                        shiftColorsX: function(sign) {
+            // x方向に色情報を1つずつずらす
+            shiftColorsX: function(sign) {
                 // 各行の最後の色情報を一時的に保持する
                 var lastColors = [];
                 for (let y = 0; y < this.height; y++) {
@@ -392,6 +403,7 @@
         };
 
 
+    
         // PNGファイルダウンロードボタンのクリックイベントを設定
         const downloadBtn = document.getElementById('downloadBtn');
         downloadBtn.addEventListener('click', function() {
@@ -402,6 +414,15 @@
             link.href = imgData; // PNGデータURLをリンクに設定
             link.click(); // リンクをクリックしてダウンロードを開始
         });
+
+
+        // チェックボックスの状態を取得する関数
+        function getCheckboxState() {
+            const checkbox = document.getElementById('eraserCheckbox');
+            const isChecked = checkbox.checked;
+            console.log('消しゴムチェックボックスの状態:', isChecked);
+            return isChecked;
+        }
 
 
 
@@ -435,7 +456,11 @@
             var color = pixelArt.getColor(pen.x, pen.y);
             // console.log("Hello.");
             d_ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-            d_ctx.fillRect((pixelArt.x + pen.x) * pixelSize, (pixelArt.y + pen.y) * pixelSize, pixelSize, pixelSize);
+            if(color[0]>-1){
+                d_ctx.fillRect((pixelArt.x + pen.x) * pixelSize, (pixelArt.y + pen.y) * pixelSize, pixelSize, pixelSize);
+            }else{
+                d_ctx.clearRect((pixelArt.x + pen.x) * pixelSize, (pixelArt.y + pen.y) * pixelSize, pixelSize, pixelSize);
+            }
         }
 
 
@@ -595,10 +620,15 @@
 
         // 四角形を描画する関数
         function drawRectangle(x, y, r, g, b) {
-            // 色を設定
-            ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-            // 四角形を描画
-            ctx.fillRect(x * cell_size, y * cell_size, cell_size, cell_size);
+
+            if(r>-1){
+                // 色を設定
+                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                // 四角形を描画
+                ctx.fillRect(x * cell_size, y * cell_size, cell_size, cell_size);
+            }else{
+                ctx.clearRect(x * cell_size, y * cell_size, cell_size, cell_size);
+            }
         }
 
 
