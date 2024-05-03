@@ -162,6 +162,9 @@
             doSomething: function() {
                 // console.log('値が変化しました:', this._x, this._y);
                 if(!getSpuitCheckboxState()){
+                    this.r = document.getElementById('redInput').value * 51;
+                    this.g = document.getElementById('greenInput').value * 51;
+                    this.b = document.getElementById('blueInput').value * 51;
                     if(isMouseDown && this.state=="canvas"){
                     if(!getEraserCheckboxState()){
                         drawRectangle(this.x, this.y, this.r, this.g, this.b);
@@ -605,7 +608,6 @@
                     if(picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0]>-1){
                         redInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0]/51;
                         greenInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][1]/51;
-                        blueInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][2]/51;
                     }
                 }
             }
