@@ -635,6 +635,8 @@
             drawFrame(pixelArt.x/pixelArt.width, pixelArt.y/pixelArt.height ,255, 0, 0);
         }
 
+
+
         function drawGrid(){
             if(getGridCheckboxState()){
                 drawVerticalLines(cell_size, 'black', 1);
@@ -750,6 +752,32 @@
 
         // チェックボックスの状態変更イベントをリッスン
         document.getElementById('gridCheckbox').addEventListener('change', checkboxChangeHandler);
+
+
+
+        // チェックボックスの状態変更時に実行される関数
+        function spuitCheckboxChangeHandler() {
+            const checkbox = document.getElementById('spuitCheckbox');
+            if (checkbox.checked) {
+                document.getElementById('eraserCheckbox').checked = false;
+            }
+        }
+
+        // チェックボックスの状態変更イベントをリッスン
+        document.getElementById('spuitCheckbox').addEventListener('change', spuitCheckboxChangeHandler);
+
+
+
+        // チェックボックスの状態変更時に実行される関数
+        function eraserCheckboxChangeHandler() {
+            const checkbox = document.getElementById('eraserCheckbox');
+            if (checkbox.checked) {
+                document.getElementById('spuitCheckbox').checked = false;
+            }
+        }
+
+        // チェックボックスの状態変更イベントをリッスン
+        document.getElementById('eraserCheckbox').addEventListener('change', eraserCheckboxChangeHandler);
 
 
 
