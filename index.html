@@ -68,10 +68,10 @@
 
     <br>
     <!-- shiftColorsX実行ボタン -->
-    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsY(-1)">↑</button>
-    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsY(1)">↓</button>
-    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsX(-1)">←</button>
-    <button id="shiftColorsXBtn" onclick="pixelArt.shiftColorsX(1)">→</button>
+    <button id="upBtn" onclick="pixelArt.shiftColorsY(-1)">↑</button>
+    <button id="downBtn" onclick="pixelArt.shiftColorsY(1)">↓</button>
+    <button id="leftBtn" onclick="pixelArt.shiftColorsX(-1)">←</button>
+    <button id="rightBtn" onclick="pixelArt.shiftColorsX(1)">→</button>
 
 
 
@@ -265,6 +265,7 @@
                 }
                 // console.log(this.colors);
                 // picture.shiftColorsY(sign);
+                picture.shiftColorsY(sign);
                 drawCanvas();
                 drawPicture();
             },
