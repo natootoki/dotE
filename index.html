@@ -72,8 +72,9 @@
     <button id="downBtn" onclick="pixelArt.shiftColorsY(1)">↓</button>
     <button id="leftBtn" onclick="pixelArt.shiftColorsX(-1)">←</button>
     <button id="rightBtn" onclick="pixelArt.shiftColorsX(1)">→</button>
-
-
+    <!-- グリッドチェックボックス -->
+    <label for="spuitCheckbox">グリッド</label>
+    <input type="checkbox" id="gridCheckbox" name="grid" checked>
 
     <script>
 
@@ -177,8 +178,7 @@
                     }
                     // Canvasにドット絵を描画
                     drawSingleDot();
-                    drawVerticalLines(cell_size, 'black', 1);
-                    drawHorizontalLines(cell_size, 'black', 1);
+                    drawGrid();
                 }
                 }
             }
@@ -470,6 +470,16 @@
 
 
 
+        // チェックボックスの状態を取得する関数
+        function getGridCheckboxState() {
+            const checkbox = document.getElementById('gridCheckbox');
+            const isChecked = checkbox.checked;
+            // console.log('スポイトチェックボックスの状態:', isChecked);
+            return isChecked;
+        }
+
+
+
         // Canvasにドット絵を描画する関数
         function drawPicture() {
             // Canvasをクリアする
@@ -528,8 +538,7 @@
                 }
             }
 
-            drawVerticalLines(cell_size, 'black', 1);
-            drawHorizontalLines(cell_size, 'black', 1);
+            drawGrid();
         }
 
 
@@ -622,8 +631,13 @@
             drawCanvas();
             drawPicture();
             drawFrame(pixelArt.x/pixelArt.width, pixelArt.y/pixelArt.height ,255, 0, 0);
-            drawVerticalLines(cell_size, 'black', 1);
-            drawHorizontalLines(cell_size, 'black', 1);
+        }
+
+        function drawGrid(){
+            if(getGridCheckboxState()){
+                drawVerticalLines(cell_size, 'black', 1);
+                drawHorizontalLines(cell_size, 'black', 1);
+            }
         }
 
 
@@ -641,8 +655,7 @@
             // Canvasに線を描画してみる
             ctx.clearRect(0, 0, canvas.width, canvas.height); // キャンバスをクリア
 
-            drawVerticalLines(cell_size, 'black', 1);
-            drawHorizontalLines(cell_size, 'black', 1);
+            drawGrid();
 
             // ドット絵の初期化
             pixelArt.resizeCanvas(document.getElementById('widthInput').value, document.getElementById('heightInput').value);
@@ -663,8 +676,7 @@
             // Canvasに線を描画してみる
             ctx.clearRect(0, 0, display.width, display.height); // キャンバスをクリア
 
-            drawVerticalLines(cell_size, 'black', 1);
-            drawHorizontalLines(cell_size, 'black', 1);
+            drawGrid();
 
             // ドット絵の初期化
             picture.resizePicture(document.getElementById('pictureWidthInput').value, document.getElementById('pictureHeightInput').value);
@@ -684,8 +696,7 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height); // キャンバスをクリア
 
-            drawVerticalLines(cell_size, 'black', 1);
-            drawHorizontalLines(cell_size, 'black', 1);
+            drawGrid();
 
             // ドット絵の初期化
             pixelArt.resizeCanvas(document.getElementById('widthInput').value, document.getElementById('heightInput').value);
@@ -723,6 +734,20 @@
         blueInput.addEventListener('input', function(event) {
             pen.b = document.getElementById('blueInput').value * 51;
         });
+
+        // チェックボックスの状態変更時に実行される関数
+        function checkboxChangeHandler() {
+            const checkbox = document.getElementById('gridCheckbox');
+            if (checkbox.checked) {
+                drawCanvas();
+                drawGrid();
+            } else {
+                drawCanvas();
+            }
+        }
+
+        // チェックボックスの状態変更イベントをリッスン
+        document.getElementById('gridCheckbox').addEventListener('change', checkboxChangeHandler);
 
 
 
@@ -798,11 +823,6 @@
 
 
 
-        // 等間隔で縦線を引く（例：間隔20ピクセル、赤色、太さ2ピクセル）
-        drawVerticalLines(cell_size, 'black', 1);
-
-
-
         // 横線を引く関数
         function drawHorizontalLines(interval, color, lineWidth) {
             ctx.strokeStyle = color; // 線の色を設定
@@ -818,8 +838,9 @@
 
 
 
-        // 等間隔で横線を引く（例：間隔20ピクセル、青色、太さ2ピクセル）
-        drawHorizontalLines(cell_size, 'black', 1);
+        drawGrid();
+
+
 
     </script>
 </body>
