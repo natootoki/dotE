@@ -41,6 +41,10 @@
     <!-- スポイトチェックボックス -->
     <label for="spuitCheckbox">スポイト</label>
     <input type="checkbox" id="spuitCheckbox" name="spuit">
+
+    <!-- バケツチェックボックス -->
+    <label for="bucketCheckbox">バケツ</label>
+    <input type="checkbox" id="bucketCheckbox" name="bucket">
     <br>
 
     <!-- r、g、b要素を指定するinput -->
@@ -567,8 +571,12 @@
             if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
                 isMouseDown = true;
                 pen.state = "canvas";
-                pen.doSomething();
-                pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b])
+                if(document.getElementById("bucketCheckbox").checked==true){
+                    fill();
+                }else{
+                    pen.doSomething();
+                    pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b])
+                }
             }
         });
 
@@ -793,6 +801,51 @@
                 ctx.clearRect(x * cell_size, y * cell_size, cell_size, cell_size);
             }
         }
+
+
+
+        function fill(){
+            var fill_target = [[pixelArt.x + pen.x, pixelArt.y + pen.y]]
+
+            // forループを使用する方法
+            for (var i = 0; i < fill_target.length; i++) {
+                var item = fill_target[i];
+                var next_to_target = [[item[0]+1,item[1]],[item[0]-1,item[1]],[item[0],item[1]+1],[item[0],item[1]-1]]
+                for (var j = 0; j < next_to_target.length; j++) {
+                    var jtem = next_to_target[j];
+                    if(pixelArt.x<=jtem[0] && jtem[0]<pixelArt.x + pixelArt.width && pixelArt.y<=jtem[1] && jtem[1]<pixelArt.y + pixelArt.height){
+                        if(picture.colors[jtem[1]][jtem[0]][0]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0] && picture.colors[jtem[1]][jtem[0]][1]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][1] && picture.colors[jtem[1]][jtem[0]][2]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][2]){
+                            var isContained = fill_target.some(function(item) {
+                                return JSON.stringify(item) === JSON.stringify(jtem);
+                            });
+                            // console.log(isContained);
+                            if(!isContained){
+                                fill_target.push(jtem);
+                            }
+                        }
+                    }
+                }
+                // 各要素に対する処理を行う
+                // console.log(item);
+            }
+            console.log(fill_target);
+
+            // forループを使用する方法
+            for (var i = 0; i < fill_target.length; i++) {
+                var item = fill_target[i];
+                pen.r = document.getElementById('redInput').value * 51;
+                pen.g = document.getElementById('greenInput').value * 51;
+                pen.b = document.getElementById('blueInput').value * 51;
+                drawRectangle(item[0], item[1], pen.r, pen.g, pen.b);
+                pixelArt.setColor(item[0], item[1], [pen.r, pen.g, pen.b]);
+                picture.setColor(item[0], item[1], [pen.r, pen.g, pen.b]);
+                // Canvasにドット絵を描画
+                drawCanvas();
+                drawGrid();
+            }
+            drawPicture();
+        }
+        // fill();
 
 
 
