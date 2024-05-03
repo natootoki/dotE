@@ -36,7 +36,11 @@
 
     <!-- 消しゴムチェックボックス -->
     <label for="eraserCheckbox">消しゴム</label>
-    <input type="checkbox" id="eraserCheckbox" name="eraser" value="eraser">
+    <input type="checkbox" id="eraserCheckbox" name="eraser">
+
+    <!-- スポイトチェックボックス -->
+    <label for="spuitCheckbox">スポイト</label>
+    <input type="checkbox" id="spuitCheckbox" name="spuit">
     <br>
 
     <!-- r、g、b要素を指定するinput -->
@@ -157,8 +161,9 @@
             },
             doSomething: function() {
                 // console.log('値が変化しました:', this._x, this._y);
-                if(isMouseDown && this.state=="canvas"){
-                    if(!getCheckboxState()){
+                if(!getSpuitCheckboxState()){
+                    if(isMouseDown && this.state=="canvas"){
+                    if(!getEraserCheckboxState()){
                         drawRectangle(this.x, this.y, this.r, this.g, this.b);
                         pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b]);
                         picture.setColor(pixelArt.x + pen.x, pixelArt.y + pen.y, [pen.r, pen.g, pen.b]);
@@ -171,6 +176,7 @@
                     drawSingleDot();
                     drawVerticalLines(cell_size, 'black', 1);
                     drawHorizontalLines(cell_size, 'black', 1);
+                }
                 }
             }
         };
@@ -254,8 +260,8 @@
                         this.colors[this.height - 1][x] = lastColors[x];
                     }
                 }
-                console.log(this.colors);
-                picture.shiftColorsY(sign);
+                // console.log(this.colors);
+                // picture.shiftColorsY(sign);
                 drawCanvas();
                 drawPicture();
             },
@@ -291,7 +297,7 @@
                         this.colors[y][this.width - 1] = lastColors[y];
                     }
                 }
-                console.log(this.colors);
+                // console.log(this.colors);
                 picture.shiftColorsX(sign);
                 drawCanvas();
                 drawPicture();
@@ -413,6 +419,19 @@
         };
 
 
+
+        // valueを編集する関数
+        function editValue(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                // 新しい値を設定
+                element.value = "新しい値";
+            } else {
+                console.error("IDが " + elementId + " の要素が見つかりません。");
+            }
+        }
+
+
     
         // PNGファイルダウンロードボタンのクリックイベントを設定
         const downloadBtn = document.getElementById('downloadBtn');
@@ -426,11 +445,22 @@
         });
 
 
+
         // チェックボックスの状態を取得する関数
-        function getCheckboxState() {
+        function getEraserCheckboxState() {
             const checkbox = document.getElementById('eraserCheckbox');
             const isChecked = checkbox.checked;
-            console.log('消しゴムチェックボックスの状態:', isChecked);
+            // console.log('消しゴムチェックボックスの状態:', isChecked);
+            return isChecked;
+        }
+
+
+
+        // チェックボックスの状態を取得する関数
+        function getSpuitCheckboxState() {
+            const checkbox = document.getElementById('spuitCheckbox');
+            const isChecked = checkbox.checked;
+            // console.log('スポイトチェックボックスの状態:', isChecked);
             return isChecked;
         }
 
@@ -522,7 +552,6 @@
             if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
                 isMouseDown = true;
                 pen.state = "canvas";
-                // console.log('左クリックが押されました');
                 pen.doSomething();
                 pixelArt.setColor(pen.x, pen.y, [pen.r, pen.g, pen.b])
             }
@@ -559,6 +588,26 @@
         document.addEventListener('mouseup', function(event) {
             if (event.button === 0) { // 左クリックが離された場合
                 isMouseDown = false;
+            }
+        });
+
+
+
+        // マウスのボタンが離されたときの処理
+        canvas.addEventListener('mouseup', function(event) {
+            if (event.button === 0) { // 左クリックが離された場合
+                if(getSpuitCheckboxState()){
+                    const checkbox = document.getElementById('spuitCheckbox');
+                    checkbox.checked = false;
+                    console.log(pen.x);
+                    console.log(pen.y);
+                    console.log(pixelArt.colors);
+                    if(picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0]>-1){
+                        redInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0]/51;
+                        greenInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][1]/51;
+                        blueInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][2]/51;
+                    }
+                }
             }
         });
 
