@@ -67,6 +67,8 @@
     <button id="downloadBtn">PNGファイルダウンロード</button>
 
     <br>
+    <span id="coodinate"></span>
+    <br>
     <!-- shiftColorsX実行ボタン -->
     <button id="upBtn" onclick="pixelArt.shiftColorsY(-1)">↑</button>
     <button id="downBtn" onclick="pixelArt.shiftColorsY(1)">↓</button>
@@ -787,6 +789,7 @@
             var rect = canvas.getBoundingClientRect(); // Canvasの位置とサイズを取得
             pen.x = Math.floor((event.clientX - rect.left) / cell_size); // Canvas内のX座標
             pen.y = Math.floor((event.clientY - rect.top) / cell_size); // Canvas内のY座標
+            document.getElementById("coodinate").textContent = "(x, y) = (" + pen.x + ", " + pen.y + ")";
             // console.log("マウスの座標 (X, Y):", pen.x, pen.y);
         }
 
