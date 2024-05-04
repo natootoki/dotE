@@ -82,7 +82,14 @@
     <label for="spuitCheckbox">グリッド</label>
     <input type="checkbox" id="gridCheckbox" name="grid" checked>
 
+    <br>
+    <!-- ファイル選択用のinput要素 -->
+    <input type="file" id="fileInput">
+
     <script>
+
+        // ファイル選択用のinput要素を取得する
+        var fileInput = document.getElementById('fileInput');
 
         // キャンバス要素を取得
         var canvas = document.getElementById('myCanvas');
@@ -430,16 +437,51 @@
 
 
 
-        // valueを編集する関数
-        function editValue(elementId) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                // 新しい値を設定
-                element.value = "新しい値";
-            } else {
-                console.error("IDが " + elementId + " の要素が見つかりません。");
+        // ファイルが選択されたときのイベントリスナーを設定する
+        fileInput.addEventListener('change', function(event) {
+            // 選択されたファイルを取得する
+            var file = event.target.files[0];
+            
+            // ファイルが存在する場合のみ処理を行う
+            if (file) {
+                // FileReaderオブジェクトを作成する
+                var reader = new FileReader();
+
+                // ファイルの読み込みが完了したときの処理を設定する
+                reader.onload = function() {
+                    // 画像を読み込む
+                    var img = new Image();
+                    img.onload = function() {
+                        // Canvasに画像を描画する
+                        display.width = img.width;
+                        display.height = img.height;
+                        picture.width = img.width;
+                        picture.height = img.height;
+                        console.log(picture.width);
+                        console.log(picture.height);
+                        d_ctx.drawImage(img, 0, 0);
+                        picture.initialize();
+                        for (i=0;i<picture.height;i++){
+                            for(j=0;j<picture.width;j++){
+                                if(d_ctx.getImageData(j, i, 1, 1).data[3]==0){
+                                    picture.colors[i][j] = [-1, -1, -1];
+                                }else{
+                                    picture.colors[i][j] = [d_ctx.getImageData(j, i, 1, 1).data[0], d_ctx.getImageData(j, i, 1, 1).data[1], d_ctx.getImageData(j, i, 1, 1).data[2]];
+                                }
+                            }
+                        }
+                        pixelArt.initialize();
+                        drawCanvas();
+                        // console.log(picture.colors);
+                    };
+                    img.src = reader.result; // 読み込んだデータを画像のsrcに設定する
+                };
+
+                // ファイルを読み込む
+                reader.readAsDataURL(file);
             }
-        }
+
+        });
 
 
     
@@ -747,6 +789,8 @@
             pen.b = document.getElementById('blueInput').value * 51;
         });
 
+
+
         // チェックボックスの状態変更時に実行される関数
         function checkboxChangeHandler() {
             const checkbox = document.getElementById('gridCheckbox');
@@ -836,9 +880,15 @@
                 pen.r = document.getElementById('redInput').value * 51;
                 pen.g = document.getElementById('greenInput').value * 51;
                 pen.b = document.getElementById('blueInput').value * 51;
-                drawRectangle(item[0], item[1], pen.r, pen.g, pen.b);
-                pixelArt.setColor(item[0], item[1], [pen.r, pen.g, pen.b]);
-                picture.setColor(item[0], item[1], [pen.r, pen.g, pen.b]);
+                if(getEraserCheckboxState()){
+                    drawRectangle(item[0], item[1], -1, -1, -1);
+                    pixelArt.setColor(item[0], item[1], [-1, -1, -1]);
+                    picture.setColor(item[0], item[1], [-1, -1, -1]);
+                }else{
+                    drawRectangle(item[0], item[1], pen.r, pen.g, pen.b);
+                    pixelArt.setColor(item[0], item[1], [pen.r, pen.g, pen.b]);
+                    picture.setColor(item[0], item[1], [pen.r, pen.g, pen.b]);
+                }
                 // Canvasにドット絵を描画
                 drawCanvas();
                 drawGrid();
