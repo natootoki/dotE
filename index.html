@@ -108,8 +108,8 @@
         var display = document.getElementById('display');
         var d_ctx = display.getContext('2d');
 
-        display.height = document.getElementById('pictureHeightInput').value * pixelSize;
-        display.width = document.getElementById('pictureWidthInput').value * pixelSize;
+        display.height = parseInt(document.getElementById('pictureHeightInput').value) * pixelSize;
+        display.width = parseInt(document.getElementById('pictureWidthInput').value) * pixelSize;
 
         // input要素を取得
         var redInput = document.getElementById('redInput');
@@ -180,9 +180,9 @@
             doSomething: function() {
                 // console.log('値が変化しました:', this._x, this._y);
                 if(!getSpuitCheckboxState()){
-                    this.r = document.getElementById('redInput').value * 51;
-                    this.g = document.getElementById('greenInput').value * 51;
-                    this.b = document.getElementById('blueInput').value * 51;
+                    this.r = parseInt(document.getElementById('redInput').value) * 51;
+                    this.g = parseInt(document.getElementById('greenInput').value) * 51;
+                    this.b = parseInt(document.getElementById('blueInput').value) * 51;
                     if(isMouseDown && this.state=="canvas"){
                     if(!getEraserCheckboxState()){
                         drawRectangle(this.x, this.y, this.r, this.g, this.b);
@@ -742,7 +742,7 @@
             drawGrid();
 
             // ドット絵の初期化
-            pixelArt.resizeCanvas(document.getElementById('widthInput').value, document.getElementById('heightInput').value);
+            pixelArt.resizeCanvas(parseInt(document.getElementById('widthInput').value), parseInt(document.getElementById('heightInput').value));
         }
 
 
@@ -763,7 +763,7 @@
             drawGrid();
 
             // ドット絵の初期化
-            picture.resizePicture(document.getElementById('pictureWidthInput').value, document.getElementById('pictureHeightInput').value);
+            picture.resizePicture(parseInt(document.getElementById('pictureWidthInput').value), parseInt(document.getElementById('pictureHeightInput').value));
         }
 
 
@@ -783,17 +783,16 @@
             drawGrid();
 
             // ドット絵の初期化
-            pixelArt.resizeCanvas(document.getElementById('widthInput').value, document.getElementById('heightInput').value);
-        }
+            pixelArt.resizeCanvas(parseInt(document.getElementById('widthInput').value), parseInt(document.getElementById('heightInput').value));        }
 
 
 
         // 背景色を更新する関数
         function updateBackgroundColor() {
             // r、g、bの値を取得
-            pen.r = document.getElementById('redInput').value * 51;
-            pen.g = document.getElementById('greenInput').value * 51;
-            pen.b = document.getElementById('blueInput').value * 51;
+            pen.r = parseInt(document.getElementById('redInput').value) * 51;
+            pen.g = parseInt(document.getElementById('greenInput').value) * 51;
+            pen.b = parseInt(document.getElementById('blueInput').value) * 51;
 
             // 背景色を設定
             canvas.style.backgroundColor = 'rgb(' + pen.r + ',' + pen.g + ',' + pen.b + ')';
@@ -804,19 +803,19 @@
 
         // input要素の値が変化したときに実行される関数
         redInput.addEventListener('input', function(event) {
-            pen.r = document.getElementById('redInput').value * 51;
+            pen.r = parseInt(document.getElementById('redInput').value) * 51;
         });
 
 
 
         greenInput.addEventListener('input', function(event) {
-            pen.g = document.getElementById('greenInput').value * 51;
+            pen.g = parseInt(document.getElementById('greenInput').value) * 51;
         });
 
 
 
         blueInput.addEventListener('input', function(event) {
-            pen.b = document.getElementById('blueInput').value * 51;
+            pen.b = parseInt(document.getElementById('blueInput').value) * 51;
         });
 
 
@@ -888,6 +887,9 @@
                 for (var j = 0; j < next_to_target.length; j++) {
                     var jtem = next_to_target[j];
                     if(pixelArt.x<=jtem[0] && jtem[0]<pixelArt.x + pixelArt.width && pixelArt.y<=jtem[1] && jtem[1]<pixelArt.y + pixelArt.height){
+                        // console.log(jtem[1], jtem[0]);
+                        console.log(pixelArt.x, pixelArt.y, pixelArt.width, pixelArt.height);
+                        // console.log(picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x]);
                         if(picture.colors[jtem[1]][jtem[0]][0]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0] && picture.colors[jtem[1]][jtem[0]][1]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][1] && picture.colors[jtem[1]][jtem[0]][2]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][2]){
                             var isContained = fill_target.some(function(item) {
                                 return JSON.stringify(item) === JSON.stringify(jtem);
@@ -902,14 +904,14 @@
                 // 各要素に対する処理を行う
                 // console.log(item);
             }
-            console.log(fill_target);
+            // console.log(fill_target);
 
             // forループを使用する方法
             for (var i = 0; i < fill_target.length; i++) {
                 var item = fill_target[i];
-                pen.r = document.getElementById('redInput').value * 51;
-                pen.g = document.getElementById('greenInput').value * 51;
-                pen.b = document.getElementById('blueInput').value * 51;
+                pen.r = parseInt(document.getElementById('redInput').value) * 51;
+                pen.g = parseInt(document.getElementById('greenInput').value) * 51;
+                pen.b = parseInt(document.getElementById('blueInput').value) * 51;
                 if(getEraserCheckboxState()){
                     drawRectangle(item[0], item[1], -1, -1, -1);
                     pixelArt.setColor(item[0], item[1], [-1, -1, -1]);
@@ -938,7 +940,7 @@
             d_ctx.strokeRect(x * pixelArt.width, y * pixelArt.height, pixelArt.width, pixelArt.height);
 
             pixelArt.x = x * pixelArt.width;
-            pixelArt.y = y * pixelArt.height
+            pixelArt.y = y * pixelArt.height;
             // console.log(pixelArt.x);
             // console.log(pixelArt.y);
         }
