@@ -34,6 +34,11 @@
     <button onclick="updateCanvasSize()">Canvasのサイズを更新</button>
     <br>
 
+    <canvas id="display"></canvas>
+    <!-- PNGファイルダウンロードボタン -->
+    <button id="downloadBtn">PNGファイルダウンロード</button>
+    <br>
+
     <!-- 消しゴムチェックボックス -->
     <label for="eraserCheckbox">消しゴム</label>
     <input type="checkbox" id="eraserCheckbox" name="eraser">
@@ -61,14 +66,11 @@
     <button onclick="clearCanvas()">Canvasをクリア</button>
     <br>
 
-    <canvas id="display"></canvas>
-
+    <canvas id="palette"></canvas>
     <br>
+
     <!-- JavaScriptでサイズを指定するCanvas -->
     <canvas id="myCanvas"></canvas>
-
-    <!-- PNGファイルダウンロードボタン -->
-    <button id="downloadBtn">PNGファイルダウンロード</button>
 
     <br>
     <span id="coodinate"></span>
@@ -107,6 +109,9 @@
 
         var display = document.getElementById('display');
         var d_ctx = display.getContext('2d');
+
+        var palette = document.getElementById('palette');
+        var p_ctx = palette.getContext('2d');
 
         display.height = parseInt(document.getElementById('pictureHeightInput').value) * pixelSize;
         display.width = parseInt(document.getElementById('pictureWidthInput').value) * pixelSize;
@@ -464,6 +469,32 @@
             }
         }
 
+        var colorBox = {
+            colorSize: 16,
+            colorDevide: 6,
+            draw: function(){
+                var colorX = 0;
+                var colorY = 0;
+                var colorZ = 0;
+                palette.width = this.colorSize * this.colorDevide * this.colorDevide;
+                palette.height = this.colorSize * this.colorDevide;
+                for (i=0;i<this.colorDevide;i++){
+                    for (j=0;j<this.colorDevide;j++){
+                        for (k=0;k<this.colorDevide;k++){
+                            p_ctx.fillStyle = 'rgb(' + (colorX*255/(this.colorDevide-1)) + ',' + (colorY*255/(this.colorDevide-1)) + ',' + (colorZ*255/(this.colorDevide-1)) + ')';
+                            p_ctx.fillRect((colorX + this.colorDevide * colorZ) * this.colorSize, colorY * this.colorSize, this.colorSize, this.colorSize);
+                            // p_ctx.clearRect(x * cell_size, y * cell_size, cell_size, cell_size);
+                            colorX++;
+                        }
+                        colorX=0;
+                        colorY++;
+                    }
+                    colorY=0;
+                    colorZ++;
+                }
+            }
+        }
+
 
 
         // ファイルが選択されたときのイベントリスナーを設定する
@@ -486,8 +517,8 @@
                         display.height = img.height;
                         picture.width = img.width;
                         picture.height = img.height;
-                        console.log(picture.width);
-                        console.log(picture.height);
+                        // console.log(picture.width);
+                        // console.log(picture.height);
                         d_ctx.drawImage(img, 0, 0);
                         picture.initialize();
                         for (i=0;i<picture.height;i++){
@@ -625,6 +656,8 @@
 
         picture.initialize();
 
+        colorBox.draw();
+
         // マウスがクリックされているかどうかを保持する変数
         var isMouseDown = false;
 
@@ -669,9 +702,19 @@
 
 
         // マウスのボタンが押されたときの処理
-        display.addEventListener('mousedown', function(event) {
+        palette.addEventListener('mousedown', function(event) {
             if (event.button === 0) { // 左クリックが押された場合（0は左クリック）
                 isMouseDown = true;
+                pen.state = "palette";
+                redInput.value = p_ctx.getImageData(pen.x*colorBox.colorSize , pen.y*colorBox.colorSize, 1, 1).data[0]/(255/(colorBox.colorDevide-1));
+                greenInput.value = p_ctx.getImageData(pen.x*colorBox.colorSize , pen.y*colorBox.colorSize, 1, 1).data[1]/(255/(colorBox.colorDevide-1));
+                blueInput.value = p_ctx.getImageData(pen.x*colorBox.colorSize , pen.y*colorBox.colorSize, 1, 1).data[2]/(255/(colorBox.colorDevide-1));
+                colorBox.draw();
+                p_ctx.strokeStyle = 'rgb(' + 0 + ',' + 0 + ',' + 0 + ')'; // 境界線の色を設定
+                p_ctx.strokeRect(pen.x * colorBox.colorSize, pen.y * colorBox.colorSize, colorBox.colorSize, colorBox.colorSize);
+                p_ctx.strokeStyle = 'rgb(' + 255 + ',' + 255 + ',' + 255 + ')'; // 境界線の色を設定
+                p_ctx.strokeRect(pen.x * colorBox.colorSize + 1, pen.y * colorBox.colorSize + 1, colorBox.colorSize - 2, colorBox.colorSize - 2);
+
                 // console.log('ディスプレイがクリックされました。');
             }
         });
@@ -693,9 +736,9 @@
                 if(getSpuitCheckboxState()){
                     const checkbox = document.getElementById('spuitCheckbox');
                     checkbox.checked = false;
-                    console.log(pen.x);
-                    console.log(pen.y);
-                    console.log(pixelArt.colors);
+                    // console.log(pen.x);
+                    // console.log(pen.y);
+                    // console.log(pixelArt.colors);
                     if(picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0]>-1){
                         redInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0]/51;
                         greenInput.value = picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][1]/51;
@@ -876,6 +919,16 @@
         }
 
 
+                // 四角形を描画する関数
+                function drawPalette() {
+                    palette.width = colorBox.colorSize * colorBox.colorDevide * colorBox.colorDevide;
+                    palette.height = colorBox.colorSize * colorBox.colorDevide;
+                    p_ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                    p_ctx.fillRect(x * cell_size, y * cell_size, cell_size, cell_size);
+                    p_ctx.clearRect(x * cell_size, y * cell_size, cell_size, cell_size);
+                }
+
+
 
         function fill(){
             var fill_target = [[pixelArt.x + pen.x, pixelArt.y + pen.y]]
@@ -888,7 +941,7 @@
                     var jtem = next_to_target[j];
                     if(pixelArt.x<=jtem[0] && jtem[0]<pixelArt.x + pixelArt.width && pixelArt.y<=jtem[1] && jtem[1]<pixelArt.y + pixelArt.height){
                         // console.log(jtem[1], jtem[0]);
-                        console.log(pixelArt.x, pixelArt.y, pixelArt.width, pixelArt.height);
+                        // console.log(pixelArt.x, pixelArt.y, pixelArt.width, pixelArt.height);
                         // console.log(picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x]);
                         if(picture.colors[jtem[1]][jtem[0]][0]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][0] && picture.colors[jtem[1]][jtem[0]][1]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][1] && picture.colors[jtem[1]][jtem[0]][2]==picture.colors[pixelArt.y + pen.y][pixelArt.x + pen.x][2]){
                             var isContained = fill_target.some(function(item) {
@@ -966,11 +1019,20 @@
             // console.log("マウスの座標 (X, Y):", pen.x, pen.y);
         }
 
+        // マウスカーソルの座標を取得する関数
+        function getMousePosPalette(event) {
+            var rect = palette.getBoundingClientRect(); // Canvasの位置とサイズを取得
+            pen.x = Math.floor((event.clientX - rect.left) / colorBox.colorSize); // Canvas内のX座標
+            pen.y = Math.floor((event.clientY - rect.top) / colorBox.colorSize); // Canvas内のY座標
+            console.log("マウスの座標Palette (X, Y):", pen.x, pen.y);
+        }
+
 
 
         // マウスが移動したときに座標を取得
         canvas.addEventListener('mousemove', getMousePos);
         display.addEventListener('mousemove', getMousePosDisplay);
+        palette.addEventListener('mousemove', getMousePosPalette);
 
 
 
