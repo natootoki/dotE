@@ -81,8 +81,12 @@
     <!-- グリッドチェックボックス -->
     <label for="spuitCheckbox">グリッド</label>
     <input type="checkbox" id="gridCheckbox" name="grid" checked>
-
     <br>
+
+    <button id="copyBtn" onclick="clipboard.inputColors()">コピー</button>
+    <button id="pasteBtn" onclick="clipboard.outputColors()">ペースト</button>
+    <br>
+
     <!-- ファイル選択用のinput要素 -->
     <input type="file" id="fileInput">
 
@@ -434,6 +438,31 @@
                 }
             }
         };
+
+
+
+        var clipboard = {
+            colors: [],
+            inputColors: function(){
+                this.colors = [];
+                for (let y = 0; y < pixelArt.height; y++) {
+                    this.colors[y] = [];
+                    for (let x = 0; x < pixelArt.width; x++) {
+                        this.colors[y][x] = [picture.colors[pixelArt.y + y][pixelArt.x + x][0], picture.colors[pixelArt.y + y][pixelArt.x + x][1], picture.colors[pixelArt.y + y][pixelArt.x + x][2]]; // 初期状態では全てのマスを白色に設定（RGB値）
+                    }
+                }
+            },
+            outputColors: function(){
+                for (i=0; i<this.colors.length;i++){
+                    for(j=0; j<this.colors[i].length;j++){
+                        picture.colors[pixelArt.y + i][pixelArt.x + j] = this.colors[i][j];
+                    }
+                }
+                pixelArt.initialize();
+                drawPicture();
+                drawCanvas();
+            }
+        }
 
 
 
